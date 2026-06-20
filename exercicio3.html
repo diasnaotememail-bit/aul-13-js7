@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inspeção de Qualidade - TechFactory</title>
+    <script>
+        window.onload = inicio;
+
+        // Criando o Map global de lotes do dia (Chave: Código do Lote | Valor: Objeto Produto)
+        let esteiraProducao = new Map();
+
+        function inicio() {
+            // Populando o Map com lotes que precisam de análise
+            esteiraProducao.set("TL-90", { nome: "Teclado Mecânico RGB (Switch Blue)", status: "Pendente" });
+            esteiraProducao.set("MS-45", { nome: "Mouse Gamer Sem Fio 26000 DPI", status: "Pendente" });
+            esteiraProducao.set("HP-88", { nome: "Headset Bluetooth Audiofone Pro", status: "Pendente" });
+            esteiraProducao.set("PAD-10", { nome: "Desk Pad Ilustrado Impermeável", status: "Pendente" });
+
+            // Renderiza a lista inicial na tela
+            atualizarTela();
+
+            // Configurando os botões de ação
+            document.getElementById('btnAprovar').addEventListener('click', aprovarLote);
+            document.getElementById('btnReprovar').addEventListener('click', reprovarLote);
+        }
+
+        // Função para atualizar o DOM com o estado atual do Map
+        function atualizarTela() {
+            let listaHTML = document.getElementById('listaProdutos');
+            let totalItens = document.getElementById('totalItens');
+
+            // Exibe a quantidade de lotes restantes usando .size (Slide 22)
+            totalItens.innerHTML = esteiraProducao.size;
+
+            listaHTML.innerHTML = "";
+
+            // Percorrendo o Map para listar os produtos na tela
+            esteiraProducao.forEach(function (produto, codigo) {
+                let corStatus = produto.status === "Aprovado" ? "green" : "orange";
+
+                listaHTML.innerHTML += `<li>
+                    <strong>Lote:</strong> ${codigo} | 
+                    <strong>Item:</strong> ${produto.nome} | 
+                    <strong>Status:</strong> <span style="color: ${corStatus}; font-weight: bold;">${produto.status}</span>
+                </li>`;
+            });
+        }
+
+        function aprovarLote() {
+            const codigo = document.getElementById('codigoLote').value.trim().toUpperCase();
+
+            if (!codigo) {
+                alert('Informe o código do lote para aprovar.');
+                return;
+            }
+
+            if (!esteiraProducao.has(codigo)) {
+                alert('Lote não encontrado: ' + codigo);
+                return;
+            }
+
+            const produto = esteiraProducao.get(codigo);
+            produto.status = 'Aprovado';
+            esteiraProducao.set(codigo, produto);
+
+            atualizarTela();
+            limparCampo();
+        }
+
+        function reprovarLote() {
+            const codigo = document.getElementById('codigoLote').value.trim().toUpperCase();
+
+            if (!codigo) {
+                alert('Informe o código do lote para reprovar.');
+                return;
+            }
+
+            if (!esteiraProducao.has(codigo)) {
+                alert('Lote não encontrado: ' + codigo);
+                return;
+            }
+
+            esteiraProducao.delete(codigo);
+            atualizarTela();
+            limparCampo();
+        }
+
+        function limparCampo() {
+            document.getElementById('codigoLote').value = "";
+        }
+    </script>
+</head>
+
+<body>
+    <h2>⚙ TechFactory - Painel de Inspeção Diária</h2>
+    <p>Lotes aguardando revisão na esteira: <strong id="totalItens">0</strong></p>
+
+    <ul id="listaProdutos" style="line-height: 1.8;">
+    </ul>
+
+    <hr>
+
+    <h3>Operação de Inspeção</h3>
+    <label for="codigoLote">Código do Lote Comercial:</label>
+    <input type="text" id="codigoLote" placeholder="Ex: TL-90">
+    <br><br>
+
+    <button id="btnAprovar" style="background-color: #d4edda; color: #155724; padding: 5px 10px; cursor: pointer;">
+        ✔ Aprovar (Mudar Status)
+    </button>
+
+    <button id="btnReprovar"
+        style="background-color: #f8d7da; color: #721c24; padding: 5px 10px; cursor: pointer; margin-left: 10px;">
+        ❌ Reprovar (Descartar produto)
+    </button>
+</body>
+
+</html>
